@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { getTimeSeries } from "./services/twelveDataService";
 import Header from "./components/header/Header"
+import Section from "./components/section/Section";
+import { useFPS } from "./hooks/useFPS";
+import { useUpdateTime } from "./hooks/useUpdateTime";
+import { useMemory } from "./hooks/useMemory";
 
 function App() {
     const [data, setData] = useState([]);
@@ -9,6 +13,9 @@ function App() {
     const [datasetSize, setDatasetSize] = useState(100);
     const [updateRate, setUpdateRate] = useState(10);
     const [mode, setMode] = useState("live");
+    const fps = useFPS();
+    const { updateTime, measureUpdate } = useUpdateTime();
+    const memory = useMemory();
 
     useEffect(() => {
         const loadData = async () => {
@@ -17,7 +24,7 @@ function App() {
             try {
                 const limit = mode === "live" ? 1 : datasetSize;
                 const response = await getTimeSeries("AAPL", "1min", limit);
-                setData(response.values ?? []);
+                measureUpdate(() => setData(response.values ?? []));
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -26,7 +33,7 @@ function App() {
         };
 
         loadData();
-    }, [datasetSize, mode]);
+    }, [datasetSize, mode, measureUpdate]);
 
     useEffect(() => {
         if (mode !== "benchmark" || data.length === 0) return;
@@ -34,39 +41,47 @@ function App() {
         const intervalMs = 1000 / updateRate;
 
         const interval = setInterval(() => {
-            setData((prevData) => {
-                if (prevData.length === 0) return prevData;
+            measureUpdate(() => {
+                setData((prevData) => {
+                    if (prevData.length === 0) return prevData;
 
-                const randomIndex = Math.floor(Math.random() * prevData.length);
-                const updated = [...prevData];
-                const currentItem = updated[randomIndex];
+                    const randomIndex = Math.floor(Math.random() * prevData.length);
+                    const updated = [...prevData];
+                    const currentItem = updated[randomIndex];
 
-                const currentClose = parseFloat(currentItem.close) || 0;
-                const newClose = (currentClose + (Math.random() - 0.5)).toFixed(2);
+                    const currentClose = parseFloat(currentItem.close) || 0;
+                    const newClose = (currentClose + (Math.random() - 0.5)).toFixed(2);
 
-                updated[randomIndex] = {
-                    ...currentItem,
-                    close: newClose
-                };
+                    updated[randomIndex] = {
+                        ...currentItem,
+                        close: newClose
+                    };
 
-                return updated;
+                    return updated;
+                });
             });
         }, intervalMs);
 
         return () => clearInterval(interval);
-    }, [mode, updateRate, data.length]);
+    }, [mode, updateRate, data.length, measureUpdate]);
 
     return (
         <div className="App">
-            <Header 
-                datasetSize={datasetSize} 
-                setDatasetSize={setDatasetSize} 
-                updateRate={updateRate} 
-                setUpdateRate={setUpdateRate} 
+            <Header
+                datasetSize={datasetSize}
+                setDatasetSize={setDatasetSize}
+                updateRate={updateRate}
+                setUpdateRate={setUpdateRate}
                 mode={mode}
                 setMode={setMode}
             />
-
+            <Section
+                datasetSize={datasetSize}
+                updateRate={updateRate}
+                fps={fps}
+                updateTime={updateTime}
+                memory={memory}
+            />
             <main className="main-content">
                 {loading && <div>Loading...</div>}
                 {error && <div>{error}</div>}
@@ -82,17 +97,17 @@ function App() {
                             )}
                         </div>
                     )
-                    :
-                    (
-                        <div>
-                            <h1>Apple - AAPL</h1>
-                            {data.map((item) => (
-                                <div key={item.datetime}>
-                                    {item.datetime} - {item.close}
-                                </div>
-                            ))}
-                        </div>
-                    )
+                        :
+                        (
+                            <div>
+                                <h1>Apple - AAPL</h1>
+                                {data.map((item) => (
+                                    <div key={item.datetime}>
+                                        {item.datetime} - {item.close}
+                                    </div>
+                                ))}
+                            </div>
+                        )
                 }
 
             </main>

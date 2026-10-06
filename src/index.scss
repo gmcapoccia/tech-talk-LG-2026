@@ -1,0 +1,26 @@
+$bg-dark: #0b0f19;
+$card-bg: #111827;
+$border-color: #1f2937;
+$text-primary: #ffffff;
+$text-secondary: #9ca3af;
+$accent-blue: #2563eb;
+$accent-cyan: #38bdf8;
+
+html,
+body {
+   margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: $bg-dark;
+  color: $text-primary;
+
+  font-family: "Inter", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}

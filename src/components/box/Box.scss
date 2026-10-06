@@ -1,0 +1,32 @@
+$bg-dark: #0b0f19;
+$card-bg: #111827;
+$border-color: #1f2937;
+$text-primary: #ffffff;
+$text-secondary: #9ca3af;
+$accent-blue: #2563eb;
+$accent-cyan: #38bdf8;
+
+
+.box{
+    background-color: $card-bg;
+    border: 1px solid $border-color;
+    color:$text-primary;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 10px;
+    width: 130px;
+    height: 50px;
+
+    .label{
+        font-size: 14px;
+        font-weight: 300;
+        margin-bottom: 5px;
+        margin: 0 0 5px 0;
+    }
+
+    .value{
+        font-size: 24px;
+        font-weight: bolder;
+        margin: 0px;
+    }
+}
