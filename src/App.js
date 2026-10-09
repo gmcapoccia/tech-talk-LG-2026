@@ -5,6 +5,9 @@ import Section from "./components/section/Section";
 import { useFPS } from "./hooks/useFPS";
 import { useUpdateTime } from "./hooks/useUpdateTime";
 import { useMemory } from "./hooks/useMemory";
+import "./App.scss";
+import { FaApple } from "react-icons/fa";
+import SystemMetrics from "./components/systemMetrics/SystemMetrics";
 
 function App() {
     const [data, setData] = useState([]);
@@ -12,7 +15,6 @@ function App() {
     const [error, setError] = useState(null);
     const [datasetSize, setDatasetSize] = useState(100);
     const [updateRate, setUpdateRate] = useState(10);
-    const [mode, setMode] = useState("live");
     const fps = useFPS();
     const { updateTime, measureUpdate } = useUpdateTime();
     const memory = useMemory();
@@ -22,8 +24,7 @@ function App() {
             setLoading(true);
             setError(null);
             try {
-                const limit = mode === "live" ? 1 : datasetSize;
-                const response = await getTimeSeries("AAPL", "1min", limit);
+                const response = await getTimeSeries("AAPL", "1min", datasetSize);
                 measureUpdate(() => setData(response.values ?? []));
             } catch (err) {
                 setError(err.message);
@@ -33,11 +34,9 @@ function App() {
         };
 
         loadData();
-    }, [datasetSize, mode, measureUpdate]);
+    }, [datasetSize, measureUpdate]);
 
     useEffect(() => {
-        if (mode !== "benchmark" || data.length === 0) return;
-
         const intervalMs = 1000 / updateRate;
 
         const interval = setInterval(() => {
@@ -63,7 +62,7 @@ function App() {
         }, intervalMs);
 
         return () => clearInterval(interval);
-    }, [mode, updateRate, data.length, measureUpdate]);
+    }, [updateRate, data.length, measureUpdate]);
 
     return (
         <div className="App">
@@ -72,8 +71,6 @@ function App() {
                 setDatasetSize={setDatasetSize}
                 updateRate={updateRate}
                 setUpdateRate={setUpdateRate}
-                mode={mode}
-                setMode={setMode}
             />
             <Section
                 datasetSize={datasetSize}
@@ -83,33 +80,72 @@ function App() {
                 memory={memory}
             />
             <main className="main-content">
-                {loading && <div>Loading...</div>}
-                {error && <div>{error}</div>}
-                {
-                    mode === "live" ? (
-                        <div>
-                            <h1>Apple - AAPL</h1>
-                            {data[0] && (
-                                <div>
-                                    <p>Ultimo aggiornamento: {data[0].datetime}</p>
-                                    <h2>{data[0].close} USD</h2>
-                                </div>
-                            )}
-                        </div>
-                    )
-                        :
-                        (
-                            <div>
-                                <h1>Apple - AAPL</h1>
-                                {data.map((item) => (
-                                    <div key={item.datetime}>
-                                        {item.datetime} - {item.close}
-                                    </div>
-                                ))}
-                            </div>
-                        )
-                }
+                {loading && <div className="spinner" />}
+                {error && <div>{error}</div>} 
+                <SystemMetrics fps={fps} updateTime={updateTime} memory={memory} />         
+                <div>
+                    <h2 className="title-heading">
+                        <FaApple size={26} /> 
+                        <span>Apple - AAPL</span>
+                    </h2>
+                    
+                    <div className="table-container">
+                        <table className="market-table">
+                            <thead>
+                                <tr>
+                                    <th>Ora</th>
+                                    <th>Prezzo ($)</th>
+                                    <th style={{ textAlign: 'right' }}>Variazione</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.map((item, index) => {
+                                    const prevItem = data[index + 1];
+                                    const price = parseFloat(item.close);
+                                    const prevPrice = prevItem ? parseFloat(prevItem.close) : price;
+                                    
+                                    const diff = price - prevPrice;
+                                    const percentage = prevPrice !== 0 ? ((diff / prevPrice) * 100).toFixed(2) : '0.00';
+                                    
+                                    const isPositive = diff > 0;
+                                    const isNegative = diff < 0;
 
+                                    const timeFormatted = item.datetime.includes(' ') 
+                                        ? item.datetime.split(' ')[1] 
+                                        : item.datetime;
+
+                                    return (
+                                        <tr key={item.datetime}>
+                                            <td className="time-cell">
+                                                {timeFormatted}
+                                            </td>
+                                            <td className="price-cell">
+                                                {price.toFixed(2)}
+                                            </td>
+                                            <td style={{ textAlign: 'right' }}>
+                                                {isPositive && (
+                                                    <span className="badge badge-positive">
+                                                        ▲ +{percentage}%
+                                                    </span>
+                                                )}
+                                                {isNegative && (
+                                                    <span className="badge badge-negative">
+                                                        ▼ {percentage}%
+                                                    </span>
+                                                )}
+                                                {!isPositive && !isNegative && (
+                                                    <span className="badge badge-neutral">
+                                                        0.00%
+                                                    </span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>         
             </main>
         </div>
     );

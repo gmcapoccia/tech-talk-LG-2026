@@ -1,0 +1,19 @@
+.system-metrics-card {
+  background-color: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  color: #ffffff;
+
+  h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+    color: #f1f5f9;
+  }
+
+  .chart-container {
+    width: 100%;
+  }
+}

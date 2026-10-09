@@ -5,6 +5,9 @@ $text-primary: #ffffff;
 $text-secondary: #9ca3af;
 $accent-blue: #2563eb;
 $accent-cyan: #38bdf8;
+$status-green: #00ff88;
+$status-yellow: #ffcc00;
+$status-red: #ff3366;
 
 
 .box{
@@ -28,5 +31,17 @@ $accent-cyan: #38bdf8;
         font-size: 24px;
         font-weight: bolder;
         margin: 0px;
+
+        &.status-green {
+            color: $status-green;
+        }
+
+        &.status-yellow {
+            color: $status-yellow;
+        }
+
+        &.status-red {
+            color: $status-red;
+        }
     }
 }

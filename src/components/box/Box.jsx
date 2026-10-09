@@ -1,11 +1,11 @@
 import React from 'react';
 import './Box.scss';
 
-const Box = ({label, value}) => {
+const Box = ({ label, value, status }) => {
     return (
         <div className="box">
             <p className="label">{label}</p>
-            <p className="value">{value}</p>
+            <p className={`value ${status ? `status-${status}` : ''}`}>{value}</p>
         </div>
     );
 }

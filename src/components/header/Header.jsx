@@ -6,8 +6,7 @@ const Header = ({
     setDatasetSize, 
     updateRate, 
     setUpdateRate, 
-    mode, 
-    setMode}) => {
+}) => {
   
   const datasetOptions = [100, 500, 1000, 5000, 10000];
   const rateOptions = [
@@ -41,21 +40,6 @@ const Header = ({
               <span className="description">Component re-rendering</span>
             </div>
           </div>
-        </div>
-
-        <div className="mode-toggle">
-          <button
-            className={`toggle-btn ${mode === 'live' ? 'active' : ''}`}
-            onClick={() => setMode('live')}
-          >
-            Live Data
-          </button>
-          <button
-            className={`toggle-btn ${mode === 'benchmark' ? 'active' : ''}`}
-            onClick={() => setMode('benchmark')}
-          >
-            Benchmark
-          </button>
         </div>
       </div>
 
