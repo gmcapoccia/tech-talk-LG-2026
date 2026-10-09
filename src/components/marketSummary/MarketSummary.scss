@@ -1,0 +1,112 @@
+.market-summary {
+  background-color: #111827;
+  border: 1px solid #1f2937;
+  border-radius: 12px;
+  color: #cbd5e1;
+  margin-bottom: 24px;
+  padding: 16px 20px;
+}
+
+.market-summary-heading {
+  h2 {
+    color: #f1f5f9;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  p {
+    color: #94a3b8;
+    font-size: 0.75rem;
+    margin: 5px 0 14px;
+  }
+}
+
+.market-summary-table-container {
+  overflow-x: auto;
+}
+
+.market-summary-table {
+  border-collapse: collapse;
+  min-width: 850px;
+  width: 100%;
+
+  th,
+  td {
+    border-bottom: 1px solid rgba(30, 41, 59, 0.6);
+    padding: 10px 12px;
+    white-space: nowrap;
+  }
+
+  th {
+    color: #94a3b8;
+    font-size: 0.7rem;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  td {
+    font-family: monospace;
+    font-size: 0.8rem;
+  }
+}
+
+.summary-sort {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  text-transform: inherit;
+}
+
+.company-symbol {
+  align-items: center;
+  color: #f8fafc;
+  display: inline-flex;
+  font-weight: 600;
+  gap: 7px;
+}
+
+.summary-price {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.summary-change {
+  border-radius: 9999px;
+  display: inline-block;
+  padding: 3px 7px;
+}
+
+.summary-change.positive {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #34d399;
+}
+
+.summary-change.negative {
+  background-color: rgba(244, 63, 94, 0.1);
+  color: #fb7185;
+}
+
+.trend-cell {
+  min-width: 125px;
+  padding-bottom: 2px !important;
+  padding-top: 2px !important;
+}
+
+.summary-status {
+  color: #94a3b8;
+  padding: 22px !important;
+  text-align: center;
+}
+
+.summary-error {
+  color: #fb7185;
+}
+
+.market-cap-note {
+  color: #64748b;
+  font-size: 0.7rem;
+  margin: 12px 0 0;
+}

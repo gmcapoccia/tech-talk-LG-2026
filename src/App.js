@@ -6,11 +6,24 @@ import { useFPS } from "./hooks/useFPS";
 import { useUpdateTime } from "./hooks/useUpdateTime";
 import { useMemory } from "./hooks/useMemory";
 import "./App.scss";
-import { FaApple } from "react-icons/fa";
 import SystemMetrics from "./components/systemMetrics/SystemMetrics";
+import MarketSummary from "./components/marketSummary/MarketSummary";
+
+const createBenchmarkDataset = (sourceData, datasetSize) => {
+    if (!sourceData.length) return [];
+
+    return Array.from({ length: datasetSize }, (_, index) => {
+        const sourceItem = sourceData[index % sourceData.length];
+        return {
+            ...sourceItem,
+            id: `${sourceItem.datetime}-${index}`
+        };
+    });
+};
 
 function App() {
     const [data, setData] = useState([]);
+    const [sourceData, setSourceData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [datasetSize, setDatasetSize] = useState(100);
@@ -24,8 +37,8 @@ function App() {
             setLoading(true);
             setError(null);
             try {
-                const response = await getTimeSeries("AAPL", "1min", datasetSize);
-                measureUpdate(() => setData(response.values ?? []));
+                const response = await getTimeSeries("AAPL", "1min", 30);
+                setSourceData(response.values ?? []);
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -34,7 +47,11 @@ function App() {
         };
 
         loadData();
-    }, [datasetSize, measureUpdate]);
+    }, [measureUpdate]);
+
+    useEffect(() => {
+        measureUpdate(() => setData(createBenchmarkDataset(sourceData, datasetSize)));
+    }, [sourceData, datasetSize, measureUpdate]);
 
     useEffect(() => {
         const intervalMs = 1000 / updateRate;
@@ -85,8 +102,7 @@ function App() {
                 <SystemMetrics fps={fps} updateTime={updateTime} memory={memory} />         
                 <div>
                     <h2 className="title-heading">
-                        <FaApple size={26} /> 
-                        <span>Apple - AAPL</span>
+                        <span>Benchmark Dataset (Synthetic)</span>
                     </h2>
                     
                     <div className="table-container">
@@ -94,6 +110,7 @@ function App() {
                             <thead>
                                 <tr>
                                     <th>Ora</th>
+                                    <th>Simbolo</th>
                                     <th>Prezzo ($)</th>
                                     <th style={{ textAlign: 'right' }}>Variazione</th>
                                 </tr>
@@ -115,9 +132,12 @@ function App() {
                                         : item.datetime;
 
                                     return (
-                                        <tr key={item.datetime}>
+                                        <tr key={item.id}>
                                             <td className="time-cell">
                                                 {timeFormatted}
+                                            </td>
+                                            <td>
+                                                {item.symbol || "AAPL"}
                                             </td>
                                             <td className="price-cell">
                                                 {price.toFixed(2)}
