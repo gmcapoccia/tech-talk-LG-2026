@@ -99,6 +99,7 @@ function App() {
             <main className="main-content">
                 {loading && <div className="spinner" />}
                 {error && <div>{error}</div>} 
+                <MarketSummary data={data} />
                 <SystemMetrics fps={fps} updateTime={updateTime} memory={memory} />         
                 <div>
                     <h2 className="title-heading">
