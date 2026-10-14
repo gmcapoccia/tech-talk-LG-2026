@@ -1,0 +1,14 @@
+.activity-log-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    .clear-btn{
+        background-color: transparent;
+        border: none;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #ffffff;
+        margin-right: 20px;
+    }
+}

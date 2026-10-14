@@ -7,11 +7,13 @@ $accent-blue: #2563eb;
 $accent-cyan: #38bdf8;
 
 .dashboard-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   background-color: $bg-dark;
   color: $text-primary;
   padding: 16px;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  border-bottom: 1px solid $border-color;
 
   .header-top {
     display: flex;

@@ -7,15 +7,28 @@
   animation: spin 1s linear infinite;
 }
 
+.main-content{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap:30px;
+  margin-bottom: 20px;
+}
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
+.metrics-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
 .table-container {
   width: 100%;
-  max-height: 500px;
+  max-height: 300px;
   overflow-y: auto;
   border-radius: 12px;
   border: 1px solid #1e293b;

@@ -8,6 +8,8 @@ import "./App.scss";
 import SystemMetrics from "./components/systemMetrics/SystemMetrics";
 import MarketSummary from "./components/marketSummary/MarketSummary";
 import { useCpuLoad } from "./hooks/useCPULoad";
+import ActivityLogSection from "./components/activityLogSection/ActivityLogSection";
+import Benchmark from "./components/benchmark/Benchmark";
 
 const AVAILABLE_SYMBOLS = ["AAPL", "MSFT", "NVDA", "TSLA"];
 
@@ -128,155 +130,19 @@ function App() {
         updateRate={updateRate}
         setUpdateRate={setUpdateRate}
       />
-      <Section fps={fps} cpuLoad={cpuLoad} memory={memory} />
+      <div className="metrics-container">
+        <Section fps={fps} cpuLoad={cpuLoad} memory={memory} />
+        <SystemMetrics fps={fps} memory={memory} />
+      </div>
+
       <main className="main-content">
         {loading && <div className="spinner" />}
         {error && <div>{error}</div>}
-        <MarketSummary data={data} />
-        <SystemMetrics fps={fps} memory={memory} />
-        <div className="activity-log-section">
-          <div className="activity-log-header">
-            <h2 className="title-heading">
-              <span>Activity Log (Last Updates)</span>
-            </h2>
-            <button className="clear-btn" onClick={() => setLogs([])}>
-              Clear
-            </button>
-          </div>
-
-          <div className="table-container">
-            <table className="market-table">
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Symbol</th>
-                  <th>Type</th>
-                  <th>Old Price</th>
-                  <th>New Price</th>
-                  <th style={{ textAlign: "right" }}>Change</th>
-                </tr>
-              </thead>
-              <tbody>
-                {logs.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan="6"
-                      style={{
-                        textAlign: "center",
-                        color: "#6b7280",
-                        padding: "20px",
-                      }}
-                    >
-                      Waiting for live updates...
-                    </td>
-                  </tr>
-                ) : (
-                  logs.map((log) => (
-                    <tr key={log.id}>
-                      <td className="time-cell">{log.time}</td>
-                      <td>{log.symbol}</td>
-                      <td style={{ color: "#9ca3af" }}>Update</td>
-                      <td>${log.oldPrice}</td>
-                      <td className="price-cell">${log.newPrice}</td>
-                      <td style={{ textAlign: "right" }}>
-                        {log.isPositive && (
-                          <span className="badge badge-positive">
-                            ▲ +{log.change}%
-                          </span>
-                        )}
-                        {log.isNegative && (
-                          <span className="badge badge-negative">
-                            ▼ {log.change}%
-                          </span>
-                        )}
-                        {!log.isPositive && !log.isNegative && (
-                          <span className="badge badge-neutral">0.00%</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <div style={{ marginTop: '30px', marginBottom: '30px' }}>
-          <h2 className="title-heading">
-            <span>Benchmark Dataset (Synthetic)</span>
-          </h2>
-
-          <div className="table-container">
-            <table className="market-table">
-              <thead>
-                <tr>
-                  <th>Time</th>
-                  <th>Symbol</th>
-                  <th>Price ($)</th>
-                  <th style={{ textAlign: "right" }}>Change</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.map((item, index) => {
-                  const prevItem = data[index + 1];
-                  const price = parseFloat(item.close);
-                  const prevPrice = prevItem
-                    ? parseFloat(prevItem.close)
-                    : price;
-
-                  const diff = price - prevPrice;
-                  const percentage =
-                    prevPrice !== 0
-                      ? ((diff / prevPrice) * 100).toFixed(2)
-                      : "0.00";
-
-                  const isPositive = diff > 0;
-                  const isNegative = diff < 0;
-
-                  const timeFormatted =
-                    item.datetime && item.datetime.includes(" ")
-                      ? item.datetime.split(" ")[1]
-                      : item.datetime || "12:00:00";
-
-                  let flashClass = "";
-                  if (item.flashDirection === "up")
-                    flashClass = "price-flash-up";
-                  if (item.flashDirection === "down")
-                    flashClass = "price-flash-down";
-
-                  return (
-                    <tr key={item.id}>
-                      <td className="time-cell">{timeFormatted}</td>
-                      <td>{item.symbol || item.name || "AAPL"}</td>
-                      <td
-                        className={`price-cell ${flashClass}`}
-                        key={item.lastUpdated || item.id}
-                      >
-                        ${price.toFixed(2)}
-                      </td>
-                      <td style={{ textAlign: "right" }}>
-                        {isPositive && (
-                          <span className="badge badge-positive">
-                            ▲ +{percentage}%
-                          </span>
-                        )}
-                        {isNegative && (
-                          <span className="badge badge-negative">
-                            ▼ {percentage}%
-                          </span>
-                        )}
-                        {!isPositive && !isNegative && (
-                          <span className="badge badge-neutral">0.00%</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <ActivityLogSection logs={logs} setLogs={setLogs} />
+        <Benchmark data={data} logs={logs} setLogs={setLogs} />
       </main>
+
+      <MarketSummary data={data} />
     </div>
   );
 }
