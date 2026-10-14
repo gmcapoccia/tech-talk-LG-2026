@@ -12,3 +12,8 @@ export const getMemoryStatus = (memoryMb) => {
     if (numericValue <= 300) return 'yellow';
     return 'red';
 };
+export const getCpuStatus = (load) => {
+    if (load > 75) return 'red';
+    if (load >= 30) return 'yellow';
+    return 'green';
+};

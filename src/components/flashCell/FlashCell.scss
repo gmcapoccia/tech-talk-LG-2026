@@ -1,0 +1,33 @@
+.flash-container {
+    transition: background-color 0.2s ease, color 0.2s ease;
+    
+    &.flash-active {
+        background-color: rgba(239, 68, 68, 0.4) !important;
+        color: #ffffff !important;
+        box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+    }
+}
+
+.flamegraph-panel {
+    background: #111827;
+    border: 1px solid #1f2937;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    
+    .flamegraph-bars {
+        display: flex;
+        align-items: flex-end;
+        height: 60px;
+        gap: 4px;
+        margin-top: 8px;
+        
+        .bar {
+            flex: 1;
+            background: #3b82f6;
+            border-top-left-radius: 2px;
+            border-top-right-radius: 2px;
+            transition: height 0.1s ease;
+        }
+    }
+}
