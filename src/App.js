@@ -4,6 +4,7 @@ import Header from "./components/header/Header";
 import Section from "./components/section/Section";
 import { useFPS } from "./hooks/useFPS";
 import { useMemory } from "./hooks/useMemory";
+import { useUpdateTime} from "./hooks/useUpdateTime";
 import "./App.scss";
 import SystemMetrics from "./components/systemMetrics/SystemMetrics";
 import MarketSummary from "./components/marketSummary/MarketSummary";
@@ -39,6 +40,7 @@ function App() {
   const [logs, setLogs] = useState([]);
   const fps = useFPS();
   const memory = useMemory();
+  const updateTime = useUpdateTime();
   const cpuLoad = useCpuLoad(datasetSize, updateRate, fps);
 
   useEffect(() => {
@@ -132,7 +134,7 @@ function App() {
       />
       <div className="metrics-container">
         <Section fps={fps} cpuLoad={cpuLoad} memory={memory} />
-        <SystemMetrics fps={fps} memory={memory} />
+        <SystemMetrics fps={fps} memory={memory} updateTime={updateTime} />
       </div>
 
       <main className="main-content">

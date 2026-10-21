@@ -1,4 +1,3 @@
-import React from "react";
 import "./Section.scss";
 import Box from "../box/Box";
 import { getFpsStatus, getMemoryStatus, getCpuStatus } from "../../utils/performance";

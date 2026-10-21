@@ -1,4 +1,3 @@
-import React from 'react';
 import './Box.scss';
 
 const Box = ({ label, value, status }) => {

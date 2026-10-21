@@ -1,6 +1,28 @@
 import { useEffect, useState, useRef } from "react";
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from 'chart.js';
 import "./SystemMetrics.scss";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 const parseMetricValue = (val) => {
     if (typeof val === "number") return val;
@@ -10,30 +32,93 @@ const parseMetricValue = (val) => {
 };
 
 const SystemMetrics = ({ fps, updateTime, memory }) => {
-    const [history, setHistory] = useState([]);
+    const [chartData, setChartData] = useState({
+        labels: [],
+        datasets: [
+            {
+                label: 'Memory (MB)',
+                data: [],
+                borderColor: '#00ff88',
+                backgroundColor: 'rgba(0, 255, 136, 0.15)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 6
+            },
+            {
+                label: 'FPS',
+                data: [],
+                borderColor: '#38bdf8',
+                backgroundColor: 'rgba(56, 189, 248, 0.15)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2,
+                pointRadius: 0,
+                pointHoverRadius: 6
+            }
+        ]
+    });
+
     const metricsRef = useRef({ fps, updateTime, memory });
 
     useEffect(() => {
         metricsRef.current = { fps, updateTime, memory };
     }, [fps, updateTime, memory]);
 
+    const chartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            x: { 
+                ticks: { color: '#64748b', font: { size: 11 } }, 
+                grid: { display: false } 
+            },
+            y: { 
+                ticks: { color: '#64748b', font: { size: 11 } }, 
+                grid: { color: 'rgba(255, 255, 255, 0.03)' },
+                border: { dash: [4, 4] }
+            }
+        },
+        plugins: {
+            legend: { 
+                position: 'right', 
+                align: 'center',
+                labels: { color: '#94a3b8', font: { size: 12 }, boxWidth: 8, usePointStyle: true } 
+            },
+            tooltip: { 
+                backgroundColor: '#0f172a', 
+                borderColor: '#1e293b', 
+                borderWidth: 1,
+                bodyFont: { size: 12 },
+                titleFont: { size: 12 },
+                padding: 10
+            }
+        },
+        animation: false
+    };
+
     useEffect(() => {
         const interval = setInterval(() => {
             const now = new Date();
             const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
 
-            const currentMetrics = metricsRef.current;
+            const current = metricsRef.current;
+            const newFps = parseMetricValue(current.fps);
+            const newMemory = parseMetricValue(current.memory);
 
-            setHistory((prev) => {
-                const newPoint = {
-                    time: timeStr,
-                    fps: parseMetricValue(currentMetrics.fps),
-                    updateTime: parseMetricValue(currentMetrics.updateTime),
-                    memory: parseMetricValue(currentMetrics.memory)
+            setChartData(prev => {
+                const newLabels = [...prev.labels, timeStr].slice(-30);
+                const newMemoryData = [...prev.datasets[0].data, newMemory].slice(-30);
+                const newFpsData = [...prev.datasets[1].data, newFps].slice(-30);
+
+                return {
+                    labels: newLabels,
+                    datasets: [
+                        { ...prev.datasets[0], data: newMemoryData },
+                        { ...prev.datasets[1], data: newFpsData }
+                    ]
                 };
-
-                const updated = [...prev, newPoint];
-                return updated.slice(-30);
             });
         }, 1000);
 
@@ -44,36 +129,8 @@ const SystemMetrics = ({ fps, updateTime, memory }) => {
         <div className="system-metrics-card">
             <h3>System Metrics (Real-time)</h3>
 
-            <div className="chart-container" style={{ width: '100%', height: 200 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={history} margin={{ right: 20 }}>
-                        <defs>
-                            <linearGradient id="colorFps" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#38bdf8" stopOpacity={0.4}/>
-                                <stop offset="95%" stopColor="#38bdf8" stopOpacity={0}/>
-                            </linearGradient>
-                            <linearGradient id="colorMemory" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#00ff88" stopOpacity={0.4}/>
-                                <stop offset="95%" stopColor="#00ff88" stopOpacity={0}/>
-                            </linearGradient>
-                        </defs>
-                        <XAxis dataKey="time" stroke="#64748b" fontSize={11} tickLine={false} />
-                        <YAxis stroke="#64748b" fontSize={11} tickLine={false} domain={['auto', 'auto']} />
-                        <Tooltip 
-                            contentStyle={{ backgroundColor: '#0f172a', borderColor: '#1e293b', borderRadius: '8px', color: '#fff' }}
-                            itemStyle={{ fontSize: '12px' }}
-                        />
-                        <Legend 
-                            layout="vertical" 
-                            align="right" 
-                            verticalAlign="middle" 
-                            iconType="circle"
-                            wrapperStyle={{ paddingLeft: '20px', fontSize: '12px', color: '#94a3b8' }}
-                        />
-                        <Area type="monotone" dataKey="memory" name="Memory (MB)" stroke="#00ff88" fillOpacity={1} fill="url(#colorMemory)" strokeWidth={2} />
-                        <Area type="monotone" dataKey="fps" name="FPS" stroke="#38bdf8" fillOpacity={1} fill="url(#colorFps)" strokeWidth={2} />
-                    </AreaChart>
-                </ResponsiveContainer>
+            <div className="chart-container">
+                <Line data={chartData} options={chartOptions} />
             </div>
         </div>
     );
