@@ -1,69 +1,51 @@
 import { useEffect, useState } from "react";
-import { getTimeSeries } from "./services/twelveDataService";
 import Header from "./components/header/Header";
 import Section from "./components/section/Section";
 import { useFPS } from "./hooks/useFPS";
 import { useMemory } from "./hooks/useMemory";
-import { useUpdateTime} from "./hooks/useUpdateTime";
+import { useUpdateTime } from "./hooks/useUpdateTime";
 import "./App.scss";
 import SystemMetrics from "./components/systemMetrics/SystemMetrics";
 import MarketSummary from "./components/marketSummary/MarketSummary";
 import { useCpuLoad } from "./hooks/useCPULoad";
 import ActivityLogSection from "./components/activityLogSection/ActivityLogSection";
 import Benchmark from "./components/benchmark/Benchmark";
-
-const AVAILABLE_SYMBOLS = ["AAPL", "MSFT", "NVDA", "TSLA"];
-
-const createBenchmarkDataset = (sourceData, datasetSize) => {
-  if (!sourceData.length) return [];
-
-  return Array.from({ length: datasetSize }, (_, index) => {
-    const sourceItem = sourceData[index % sourceData.length];
-
-    const assignedSymbol = AVAILABLE_SYMBOLS[index % AVAILABLE_SYMBOLS.length];
-
-    return {
-      ...sourceItem,
-      symbol: assignedSymbol,
-      id: `${sourceItem.datetime}-${assignedSymbol}-${index}`,
-    };
-  });
-};
+import { generateMockTimeSeries } from "./services/mockMarketData";
 
 function App() {
   const [data, setData] = useState([]);
-  const [sourceData, setSourceData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [datasetSize, setDatasetSize] = useState(100);
   const [updateRate, setUpdateRate] = useState(10);
   const [logs, setLogs] = useState([]);
+  
   const fps = useFPS();
   const memory = useMemory();
   const updateTime = useUpdateTime();
   const cpuLoad = useCpuLoad(datasetSize, updateRate, fps);
 
+  // Genera i dati del benchmark scalabili in base a datasetSize
   useEffect(() => {
-    const loadData = async () => {
-      setLoading(true);
+    setLoading(true);
+    try {
+      const mockData = generateMockTimeSeries(datasetSize);
+      const formattedData = mockData.map((item, index) => ({
+        ...item,
+        close: item.price.toString(),
+        datetime: item.trend[item.trend.length - 1]?.datetime || new Date().toISOString(),
+        id: `${item.symbol}-${index}`
+      }));
+      setData(formattedData);
       setError(null);
-      try {
-        const response = await getTimeSeries("AAPL", "1min", 30);
-        setSourceData(response.values ?? []);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
+    } catch (err) {
+      setError("Errore nella generazione dei dati mock");
+    } finally {
+      setLoading(false);
+    }
+  }, [datasetSize]);
 
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    setData(createBenchmarkDataset(sourceData, datasetSize));
-  }, [sourceData, datasetSize]);
-
+  // Gestione dell'intervallo di aggiornamento continuo in tempo reale
   useEffect(() => {
     const intervalMs = 1000 / updateRate;
     let lastLogTime = Date.now();
@@ -81,7 +63,6 @@ function App() {
         const oldClose = currentClose.toFixed(2);
 
         const diff = parseFloat(newClose) - parseFloat(oldClose);
-
         const symbol = currentItem.symbol || "AAPL";
 
         updated[randomIndex] = {
@@ -144,7 +125,7 @@ function App() {
         <Benchmark data={data} logs={logs} setLogs={setLogs} />
       </main>
 
-      <MarketSummary data={data} />
+      <MarketSummary />
     </div>
   );
 }
