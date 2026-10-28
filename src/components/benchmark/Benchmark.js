@@ -4,10 +4,6 @@ import "./Benchmark.scss";
 const Benchmark = ({ data, logs, setLogs }) => {
     return (
         <div className="benchmark-container">
-            {/* <h2 className="title-heading">
-                <span>Benchmark Dataset (Synthetic)</span>
-            </h2> */}
-
             <div className="table-container">
                 <table className="market-table">
                     <thead>
