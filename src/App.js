@@ -119,10 +119,16 @@ function App() {
       </div>
 
       <main className="main-content">
-        {loading && <div className="spinner" />}
-        {error && <div>{error}</div>}
-        <ActivityLogSection logs={logs} setLogs={setLogs} />
-        <Benchmark data={data} logs={logs} setLogs={setLogs} />
+        {(loading || error) && (
+          <div className="status-banner">
+            {loading && <p>Loading market data...</p>}
+            {error && <p role="alert">Unable to load market data: {error}</p>}
+          </div>
+        )}
+        <div className="dashboard-grid">
+          <ActivityLogSection logs={logs} />
+          <Benchmark data={data} />
+        </div>
       </main>
 
       <MarketSummary />
